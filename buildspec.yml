@@ -4,25 +4,26 @@ phases:
   install:
     commands:
       - echo "Installing kubectl"
+      - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.29.0/2023-11-14/bin/linux/amd64/kubectl
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
 
   pre_build:
     commands:
-      # Print info about environment setup
-      - echo "Setting up IMAGE_URI and IMAGE_TAG from previous stage..."
-      # List files to verify presence of artifacts
-      - echo "Listing all files in workspace for debugging:"
+      - echo "Updating kubeconfig"
+      - aws eks update-kubeconfig --region ap-northeast-1 --name eksdemo1
+
+      - echo "Listing files"
       - ls -R .
-      # Source exported variables (IMAGE_URI and IMAGE_TAG)
-      - echo "Sourcing env variables from file"
+
+      - echo "Loading image variables"
       - source ./exported-vars.env
       - echo "IMAGE_URI=$IMAGE_URI"
       - echo "IMAGE_TAG=$IMAGE_TAG"
-      # Replace placeholder in Kubernetes YAML with actual image URI and tag
-      - echo "Updating container image in the Kubernetes Deployment YAML file..."
-      - sed -i 's@CONTAINER_IMAGE@'"$IMAGE_URI:$IMAGE_TAG"'@' kube-manifests/01-DEVOPS-Nginx-Deployment.yml
-      - echo "Updated deployment manifest content:"
-      - cat kube-manifests/01-DEVOPS-Nginx-Deployment.yml
 
+      - echo "Updating deployment YAML"
+      - sed -i 's@CONTAINER_IMAGE@'"$IMAGE_URI:$IMAGE_TAG"'@' kube-manifests/01-DEVOPS-Nginx-Deployment.yml
+      - cat kube-manifests/01-DEVOPS-Nginx-Deployment.yml
 
   build:
     commands:
@@ -31,11 +32,7 @@ phases:
 
   post_build:
     commands:
-      # Verification steps to ensure everything is deployed correctly
-      - echo "Verifying Kubernetes resources created:"
-      - echo "Pods Status:"
+      - echo "Pods:"
       - kubectl get pods -o wide
-      - echo "Services Status:"
+      - echo "Services:"
       - kubectl get svc -o wide
-      - echo "Ingress Status:"
-      - kubectl get ingress -o wide
