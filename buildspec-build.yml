@@ -48,4 +48,5 @@ artifacts:
   files:
     - exported-vars.env
     - buildspec-deploy.yml
+    - buildspec.yml
     - '**/kube-manifests/**/*'
