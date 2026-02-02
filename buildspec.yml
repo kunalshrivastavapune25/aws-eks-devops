@@ -3,27 +3,16 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Installing kubectl"
-      - yum install -y kubectl
+      - curl -LO https://dl.k8s.io/release/v1.28.3/bin/linux/amd64/kubectl
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/kubectl
       - kubectl version --client
-      - aws --version
 
   pre_build:
     commands:
-      - echo "Who am I"
-      - aws sts get-caller-identity
-
-      - echo "Updating kubeconfig"
       - aws eks update-kubeconfig --region ap-northeast-1 --name eksdemo1
-
-      - echo "Testing cluster access"
       - kubectl get nodes
 
   build:
     commands:
-      - echo "Deploying to EKS"
       - kubectl apply -f kube-manifests/
-
-  post_build:
-    commands:
-      - kubectl get pods -o wide
