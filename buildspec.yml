@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing kubectl"
+
+  pre_build:
+    commands:
+      - echo "Updating kubeconfig"
+      - aws eks update-kubeconfig --region ap-northeast-1 --name eksdemo1
+
+  build:
+    commands:
+      - echo "Deploying to EKS"
+      - kubectl apply -f kube-manifests/
