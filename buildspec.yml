@@ -7,6 +7,22 @@ phases:
 
   pre_build:
     commands:
+      # Print info about environment setup
+      - echo "Setting up IMAGE_URI and IMAGE_TAG from previous stage..."
+      # List files to verify presence of artifacts
+      - echo "Listing all files in workspace for debugging:"
+      - ls -R .
+      # Source exported variables (IMAGE_URI and IMAGE_TAG)
+      - echo "Sourcing env variables from file"
+      - source ./exported-vars.env
+      - echo "IMAGE_URI=$IMAGE_URI"
+      - echo "IMAGE_TAG=$IMAGE_TAG"
+      # Replace placeholder in Kubernetes YAML with actual image URI and tag
+      - echo "Updating container image in the Kubernetes Deployment YAML file..."
+      - sed -i 's@CONTAINER_IMAGE@'"$IMAGE_URI:$IMAGE_TAG"'@' kube-manifests/01-DEVOPS-Nginx-Deployment.yml
+      - echo "Updated deployment manifest content:"
+      - cat kube-manifests/01-DEVOPS-Nginx-Deployment.yml
+    
       - echo "Updating kubeconfig"
       - aws eks update-kubeconfig --region ap-northeast-1 --name eksdemo1
 
