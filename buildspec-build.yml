@@ -42,6 +42,10 @@ phases:
       - echo "Exporting variables for downstream stages..."
       - echo "IMAGE_URI=$IMAGE_URI" >> $CODEBUILD_SRC_DIR/exported-vars.env
       - echo "IMAGE_TAG=$IMAGE_TAG" >> $CODEBUILD_SRC_DIR/exported-vars.env
+      - echo "Updating container image in the Kubernetes Deployment YAML file..."
+      - sed -i 's@CONTAINER_IMAGE@'"$IMAGE_URI:$IMAGE_TAG"'@' kube-manifests/01-DEVOPS-Nginx-Deployment.yml
+      - echo "Updated deployment manifest content:"
+      - cat kube-manifests/01-DEVOPS-Nginx-Deployment.yml
 
 # Files that will be included as artifacts for the next stage
 artifacts:
