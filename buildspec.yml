@@ -22,11 +22,20 @@ phases:
       - sed -i 's@CONTAINER_IMAGE@'"$IMAGE_URI:$IMAGE_TAG"'@' kube-manifests/01-DEVOPS-Nginx-Deployment.yml
       - echo "Updated deployment manifest content:"
       - cat kube-manifests/01-DEVOPS-Nginx-Deployment.yml
-    
-      - echo "Updating kubeconfig"
-      - aws eks update-kubeconfig --region ap-northeast-1 --name eksdemo1
+
 
   build:
     commands:
       - echo "Deploying to EKS"
-      - kubectl apply -f kube-manifests/*
+      - kubectl apply -f kube-manifests/
+
+  post_build:
+    commands:
+      # Verification steps to ensure everything is deployed correctly
+      - echo "Verifying Kubernetes resources created:"
+      - echo "Pods Status:"
+      - kubectl get pods -o wide
+      - echo "Services Status:"
+      - kubectl get svc -o wide
+      - echo "Ingress Status:"
+      - kubectl get ingress -o wide
